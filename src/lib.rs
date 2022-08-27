@@ -1,3 +1,3 @@
 #![no_std]
 
-mod colors;
+pub mod colors;

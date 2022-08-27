@@ -1,4 +1,3 @@
-
 pub struct Colors {
     color_bits: u8,
 }
@@ -104,43 +103,11 @@ impl Colors {
         self.color_bits.count_ones()
     }
  
+    const SYMBOLS: [&'static str; 32] = ["","W","U","WU","B","WB","UB","WUB","R","RW","UR","URW","BR","RWB","UBR","WUBR","G","GW","GU","GWU","BG","WBG","BGU","GWUB","RG","RGW","GUR","RGWU","BRG","BRGW","UBRG","WUBRG"];
+
     // Symbols in canonical order
     pub fn symbols(&self) -> &'static str {
-        match self.color_bits {
-            0 => "",
-            1 => "W",
-            2 => "U",
-            3 => "WU",
-            4 => "B",
-            5 => "WB",
-            6 => "UB",
-            7 => "WUB",
-            8 => "R",
-            9 => "RW",
-            10 => "UR",
-            11 => "URW",
-            12 => "BR",
-            13 => "RWB",
-            14 => "UBR",
-            15 => "WUBR",
-            16 => "G",
-            17 => "GW",
-            18 => "GU",
-            19 => "GWU",
-            20 => "BG",
-            21 => "WBG",
-            22 => "BGU",
-            23 => "GWUB",
-            24 => "RG",
-            25 => "RGW",
-            26 => "GUR",
-            27 => "RGWU",
-            28 => "BRG",
-            29 => "BRGW",
-            30 => "UBRG",
-            31 => "WUBRG",
-            _ => unreachable!("invalid bits"),
-        }
+        Self::SYMBOLS[self.color_bits as usize]
     }
 }
 
@@ -166,7 +133,7 @@ impl TryFrom<u8> for Colors {
 
 
 #[test]
-fn test() {
+fn test_changes() {
     let mut c = Colors::from_symbols("WG");
 
     assert_eq!("GW",c.symbols());
