@@ -105,7 +105,8 @@ impl Colors {
  
     const SYMBOLS: [&'static str; 32] = ["","W","U","WU","B","WB","UB","WUB","R","RW","UR","URW","BR","RWB","UBR","WUBR","G","GW","GU","GWU","BG","WBG","BGU","GWUB","RG","RGW","GUR","RGWU","BRG","BRGW","UBRG","WUBRG"];
 
-    // Symbols in canonical order
+    /// Symbols in canonical order
+    /// To avoid panic handling only the lower 5 bits are considered.
     pub fn symbols(&self) -> &'static str {
         Self::SYMBOLS[self.color_bits as usize]
     }
@@ -118,16 +119,10 @@ impl Into<u8> for Colors {
     }
 }
 
-// It is literally just a byte
-impl TryFrom<u8> for Colors {
-    type Error = &'static str;
-
-    fn try_from(value: u8) -> Result<Self, Self::Error> {
-        if value < 32 {
-            Ok(Colors{color_bits:value})
-        } else {
-            Err("maximum valid value is 31")
-        }
+// Ignore the top three bits
+impl From<u8> for Colors {
+    fn from(value: u8) -> Colors {
+        Colors{ color_bits: value % 32 }
     }
 }
 
@@ -144,6 +139,8 @@ fn test_changes() {
     assert_eq!(false,c.is_monocolor());
     assert_eq!(false,c.is_colorless());
 
+    // Check double assign.
+    c.add_blue();
     c.add_blue();
 
     assert_eq!("GWU",c.symbols());
