@@ -104,6 +104,41 @@ impl Colors {
     }
  
     const SYMBOLS: [&'static str; 32] = ["","W","U","WU","B","WB","UB","WUB","R","RW","UR","URW","BR","RWB","UBR","WUBR","G","GW","GU","GWU","BG","WBG","BGU","GWUB","RG","RGW","GUR","RGWU","BRG","BRGW","UBRG","WUBRG"];
+    // Minimal(?) string containing all symbols in canonical order
+    //                                01234567890123
+    // const HYPER_PERM: &'static str = "RWBGURWUBRGWUB";
+    // ""
+    // 1..2   W
+    // 4..5   U
+    // 6..8   WU
+    // 2..3   B
+    // 1..3   WB
+    // 12..14 UB
+    // 6..9   WUB
+    //        R
+    //        RW
+    //        UR
+    //        URW
+    //        BR
+    //        RWB
+    //        UBR
+    //        WUBR
+    //        G
+    //        GW
+    //        GU
+    //        GWU
+    //        BG
+    //        WBG
+    //        BGU
+    //        GWUB
+    //        RG
+    //        RGW
+    //        GUR
+    //        RGWU
+    //        BRG
+    //        BRGW
+    //        UBRG
+    //        WUBRG
 
     /// Symbols in canonical order
     /// To avoid panic handling only the lower 5 bits are considered.
