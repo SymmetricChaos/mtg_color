@@ -1,67 +1,77 @@
 #![no_std]
 
+pub enum Color {
+    White,
+    Blue,
+    Black,
+    Red,
+    Green,
+}
+
 pub struct Colors {
     color_bits: u8,
 }
 
 impl Colors {
     /// Construct a Colors struct from a string, ignoring symbols other than WUBRG
+    /// Using TryFrom<&str> is now preferred as it returns Result when given invalid characters.
     pub fn from_symbols(s: &str) -> Colors {
         let mut c = Colors { color_bits: 0 };
         for ch in s.chars() {
             match ch {
-                'W' => c.add_white(),
-                'U' => c.add_blue(),
-                'B' => c.add_black(),
-                'R' => c.add_red(),
-                'G' => c.add_green(),
+                'W' => c.add(Color::White),
+                'U' => c.add(Color::Blue),
+                'B' => c.add(Color::Black),
+                'R' => c.add(Color::Red),
+                'G' => c.add(Color::Green),
                 _ => (),
             }
         }
         c
     }
 
-    // add colors
-    pub fn add_white(&mut self) {
-        self.color_bits |= 1
+    /// Add a color
+    pub fn add(&mut self, color: Color) {
+        match color {
+            Color::White => self.color_bits |= 1,
+            Color::Blue => self.color_bits |= 2,
+            Color::Black => self.color_bits |= 4,
+            Color::Red => self.color_bits |= 8,
+            Color::Green => self.color_bits |= 16,
+        }
     }
 
-    pub fn add_blue(&mut self) {
-        self.color_bits |= 2
+    /// Remove a color
+    pub fn remove(&mut self, color: Color) {
+        match color {
+            Color::White => self.color_bits &= !1,
+            Color::Blue => self.color_bits &= !2,
+            Color::Black => self.color_bits &= !4,
+            Color::Red => self.color_bits &= !8,
+            Color::Green => self.color_bits &= !16,
+        }
     }
 
-    pub fn add_black(&mut self) {
-        self.color_bits |= 4
+    /// Check if a color is included
+    pub fn is_color(&self, color: Color) -> bool {
+        match color {
+            Color::White => self.color_bits & 1 == 1,
+            Color::Blue => self.color_bits & 2 == 2,
+            Color::Black => self.color_bits & 4 == 4,
+            Color::Red => self.color_bits & 8 == 8,
+            Color::Green => self.color_bits & 16 == 16,
+        }
     }
 
-    pub fn add_red(&mut self) {
-        self.color_bits |= 8
+    /// Check if a this is a specific monocolor
+    pub fn is_color_mono(&self, color: Color) -> bool {
+        if self.is_monocolor() {
+            self.is_color(color)
+        } else {
+            false
+        }
     }
 
-    pub fn add_green(&mut self) {
-        self.color_bits |= 16
-    }
-
-    // remove colors
-    pub fn del_white(&mut self) {
-        self.color_bits &= !1
-    }
-
-    pub fn del_blue(&mut self) {
-        self.color_bits &= !2
-    }
-
-    pub fn del_black(&mut self) {
-        self.color_bits &= !4
-    }
-
-    pub fn del_red(&mut self) {
-        self.color_bits &= !8
-    }
-
-    pub fn del_green(&mut self) {
-        self.color_bits &= !16
-    }
 
     /// Remove all colors
     pub fn set_colorless(&mut self) {
@@ -69,26 +79,6 @@ impl Colors {
     }
 
     // Predicates
-    pub fn is_white(&self) -> bool {
-        self.color_bits & 1 == 1
-    }
-
-    pub fn is_blue(&self) -> bool {
-        self.color_bits & 2 == 2
-    }
-
-    pub fn is_black(&self) -> bool {
-        self.color_bits & 4 == 4
-    }
-
-    pub fn is_red(&self) -> bool {
-        self.color_bits & 8 == 8
-    }
-
-    pub fn is_green(&self) -> bool {
-        self.color_bits & 16 == 16
-    }
-
     pub fn is_colorless(&self) -> bool {
         self.color_bits == 0
     }
@@ -168,48 +158,72 @@ impl From<u8> for Colors {
     }
 }
 
+impl TryFrom<&str> for Colors {
+    type Error = &'static str;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        let mut c = Colors { color_bits: 0 };
+        for ch in value.chars() {
+            match ch {
+                'W' => c.add(Color::White),
+                'U' => c.add(Color::Blue),
+                'B' => c.add(Color::Black),
+                'R' => c.add(Color::Red),
+                'G' => c.add(Color::Green),
+                _ => return Err("invalid symbol found in color &str"),
+            }
+        }
+        Ok(c)
+    }
+}
+
+
 
 #[test]
 fn test_changes() {
     let mut c = Colors::from_symbols("WG");
 
     assert_eq!("GW", c.symbols());
-    assert_eq!(true, c.is_white());
-    assert_eq!(false, c.is_blue());
+    assert_eq!(true, c.is_color(Color::White));
+    assert_eq!(false, c.is_color(Color::Blue));
+    assert_eq!(false, c.is_color_mono(Color::Blue));
     assert_eq!(2, c.num_colors());
     assert_eq!(true, c.is_multicolor());
     assert_eq!(false, c.is_monocolor());
     assert_eq!(false, c.is_colorless());
 
     // Check double assign.
-    c.add_blue();
-    c.add_blue();
+    c.add(Color::Blue);
+    c.add(Color::Blue);
 
     assert_eq!("GWU", c.symbols());
-    assert_eq!(true, c.is_white());
-    assert_eq!(true, c.is_blue());
+    assert_eq!(true, c.is_color(Color::White));
+    assert_eq!(true, c.is_color(Color::Blue));
+    assert_eq!(false, c.is_color_mono(Color::Blue));
     assert_eq!(3, c.num_colors());
     assert_eq!(true, c.is_multicolor());
     assert_eq!(false, c.is_monocolor());
     assert_eq!(false, c.is_colorless());
 
     // Check double delete.
-    c.del_white();
-    c.del_white();
+    c.remove(Color::White);
+    c.remove(Color::White);
 
     assert_eq!("GU", c.symbols());
-    assert_eq!(false, c.is_white());
-    assert_eq!(true, c.is_blue());
+    assert_eq!(false, c.is_color(Color::White));
+    assert_eq!(true, c.is_color(Color::Blue));
+    assert_eq!(false, c.is_color_mono(Color::Blue));
     assert_eq!(2, c.num_colors());
     assert_eq!(true, c.is_multicolor());
     assert_eq!(false, c.is_monocolor());
     assert_eq!(false, c.is_colorless());
 
-    c.del_green();
+    c.remove(Color::Green);
 
     assert_eq!("U", c.symbols());
-    assert_eq!(false, c.is_white());
-    assert_eq!(true, c.is_blue());
+    assert_eq!(false, c.is_color(Color::White));
+    assert_eq!(true, c.is_color(Color::Blue));
+    assert_eq!(true, c.is_color_mono(Color::Blue));
     assert_eq!(1, c.num_colors());
     assert_eq!(false, c.is_multicolor());
     assert_eq!(true, c.is_monocolor());
