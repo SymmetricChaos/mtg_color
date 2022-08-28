@@ -1,8 +1,11 @@
 [package]
 name = "mtg_color"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+authors = ["SymmetricChaos <ajfraebel@gmail.com>"]
+description = "Storage optimized colors for Magic the Gathering"
+license = "MIT"
+repository = "https://github.com/SymmetricChaos/mtg_color"
+keywords = ["ntg","magic","no-std"]
 
 [dependencies]
