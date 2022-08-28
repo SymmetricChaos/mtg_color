@@ -3,6 +3,7 @@ pub struct Colors {
 }
 
 impl Colors {
+    /// Construct a Colors struct from a string. Symbols others than WUBRG are ignored.
     pub fn from_symbols(s: &str) -> Colors {
         let mut c = Colors { color_bits: 0 };
         for ch in s.chars() {
@@ -18,7 +19,7 @@ impl Colors {
         c
     }
 
-    // Add a color
+    // add colors
     pub fn add_white(&mut self) {
         self.color_bits |= 1
     }
@@ -60,6 +61,7 @@ impl Colors {
         self.color_bits &= !16
     }
 
+    /// Remove all colors
     pub fn set_colorless(&mut self) {
         self.color_bits = 0
     }
@@ -89,15 +91,17 @@ impl Colors {
         self.color_bits == 0
     }
 
+    /// Returns true if Colors is exactly one color
     pub fn is_monocolor(&self) -> bool {
         self.num_colors() == 1
     }
 
+    /// Returns true if Colors is two or more colors
     pub fn is_multicolor(&self) -> bool {
         self.num_colors() > 1
     }
 
-    // Descriptors
+    /// Determine how many colors are set
     pub fn num_colors(&self) -> u32 {
         self.color_bits.count_ones()
     }
@@ -105,8 +109,8 @@ impl Colors {
     // Minimal(?) string containing all symbols in canonical order
     const HYPER_PERM: &'static str = "RWBGURWUBRGWUB";
 
-    // Symbols in canonical order
-    // To avoid panic handling only the lower 5 bits are considered.
+    /// Symbols in canonical order
+    /// To avoid panic handling only the lower 5 bits are considered.
     pub fn symbols(&self) -> &'static str {
         match self.color_bits % 32 {
             0 => &Self::HYPER_PERM[0..0],
@@ -146,14 +150,14 @@ impl Colors {
     }
 }
 
-// It is literally just a byte
+/// Because the Colors struct is just a byte conversion is trivial.
 impl Into<u8> for Colors {
     fn into(self) -> u8 {
         self.color_bits
     }
 }
 
-// Ignore the top three bits
+/// Converts a byte into Colors by ignoring the upper three bits.
 impl From<u8> for Colors {
     fn from(value: u8) -> Colors {
         Colors {
@@ -161,6 +165,7 @@ impl From<u8> for Colors {
         }
     }
 }
+
 
 #[test]
 fn test_changes() {
