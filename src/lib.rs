@@ -72,13 +72,12 @@ impl Colors {
         }
     }
 
-
     /// Remove all colors
     pub fn set_colorless(&mut self) {
         self.color_bits = 0
     }
 
-    // Predicates
+    /// Returns true if Colors has no colors
     pub fn is_colorless(&self) -> bool {
         self.color_bits == 0
     }
