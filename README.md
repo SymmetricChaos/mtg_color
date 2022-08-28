@@ -7,6 +7,4 @@ Features:
 * only 14 bytes shared bytes needed for all canonical symbol information (compared to 80 bytes for a naive implementation)  
 * already at a stable 1.0.0 release  
 * zero dependencies  
-* there aren't any others  
-* but extra lines for features  
-* always look good  
+* coded in pure Rust for speed and safety

@@ -1,11 +1,11 @@
 [package]
 name = "mtg_color"
-version = "1.0.0"
+version = "1.0.1"
 edition = "2021"
 authors = ["SymmetricChaos <ajfraebel@gmail.com>"]
-description = "Storage optimized colors for Magic the Gathering"
+description = "Storage optimized color information for Magic the Gathering"
 license = "MIT"
 repository = "https://github.com/SymmetricChaos/mtg_color"
-keywords = ["ntg","magic","no-std"]
+keywords = ["mtg","magic","no-std"]
 
 [dependencies]
