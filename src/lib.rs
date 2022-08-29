@@ -2,7 +2,7 @@
 
 #[repr(u8)]
 #[derive(Clone)]
-pub enum Color {
+pub enum MtgColor {
     White = 1,
     Blue = 2,
     Black = 4,
@@ -22,22 +22,22 @@ impl ColorSet {
     }
 
     /// Add a color
-    pub fn add(&mut self, color: Color) {
+    pub fn add(&mut self, color: MtgColor) {
         self.bits |= color as u8;
     }
 
     /// Remove a color
-    pub fn remove(&mut self, color: Color) {
+    pub fn remove(&mut self, color: MtgColor) {
         self.bits &= !(color as u8);
     }
 
     /// Check if a color is included
-    pub fn is_color(&self, color: Color) -> bool {
+    pub fn is_color(&self, color: MtgColor) -> bool {
         self.bits & (color.clone() as u8) == (color as u8)
     }
 
     /// Check if the ColorSet is a specific monocolor
-    pub fn is_color_mono(&self, color: Color) -> bool {
+    pub fn is_color_mono(&self, color: MtgColor) -> bool {
         self.is_monocolor() && self.is_color(color)
     }
 
@@ -133,8 +133,8 @@ impl FromIterator<char> for ColorSet {
     }
 }
 
-impl FromIterator<Color> for ColorSet {
-    fn from_iter<T: IntoIterator<Item=Color>>(iter: T) -> Self {
+impl FromIterator<MtgColor> for ColorSet {
+    fn from_iter<T: IntoIterator<Item=MtgColor>>(iter: T) -> Self {
         let mut c = Self { bits: 0 };
         for i in iter {
             c.add(i);
@@ -160,20 +160,20 @@ impl TryFrom<u8> for ColorSet {
 impl TryFrom<&str> for ColorSet {
     type Error = &'static str;
     fn try_from(value: &str) -> Result<Self, Self::Error> {
-        value.chars().map(Color::try_from).collect()
+        value.chars().map(MtgColor::try_from).collect()
     }
 }
 
-impl TryFrom<char> for Color {
+impl TryFrom<char> for MtgColor {
     type Error = &'static str;
 
     fn try_from(value: char) -> Result<Self, Self::Error> {
         match value {
-            'W' => Ok(Color::White),
-            'U' => Ok(Color::Blue),
-            'B' => Ok(Color::Black),
-            'R' => Ok(Color::Red),
-            'G' => Ok(Color::Green),
+            'W' => Ok(MtgColor::White),
+            'U' => Ok(MtgColor::Blue),
+            'B' => Ok(MtgColor::Black),
+            'R' => Ok(MtgColor::Red),
+            'G' => Ok(MtgColor::Green),
             _ => Err("invalid ColorSet symbol")
         }
     }
@@ -184,46 +184,46 @@ fn test_changes() {
     let mut c = ColorSet::try_from("WG").unwrap();
 
     assert_eq!("GW", c.symbols());
-    assert_eq!(true, c.is_color(Color::White));
-    assert_eq!(false, c.is_color(Color::Blue));
-    assert_eq!(false, c.is_color_mono(Color::Blue));
+    assert_eq!(true, c.is_color(MtgColor::White));
+    assert_eq!(false, c.is_color(MtgColor::Blue));
+    assert_eq!(false, c.is_color_mono(MtgColor::Blue));
     assert_eq!(2, c.num_colors());
     assert_eq!(true, c.is_multicolor());
     assert_eq!(false, c.is_monocolor());
     assert_eq!(false, c.is_colorless());
 
     // Check double assign.
-    c.add(Color::Blue);
-    c.add(Color::Blue);
+    c.add(MtgColor::Blue);
+    c.add(MtgColor::Blue);
 
     assert_eq!("GWU", c.symbols());
-    assert_eq!(true, c.is_color(Color::White));
-    assert_eq!(true, c.is_color(Color::Blue));
-    assert_eq!(false, c.is_color_mono(Color::Blue));
+    assert_eq!(true, c.is_color(MtgColor::White));
+    assert_eq!(true, c.is_color(MtgColor::Blue));
+    assert_eq!(false, c.is_color_mono(MtgColor::Blue));
     assert_eq!(3, c.num_colors());
     assert_eq!(true, c.is_multicolor());
     assert_eq!(false, c.is_monocolor());
     assert_eq!(false, c.is_colorless());
 
     // Check double delete.
-    c.remove(Color::White);
-    c.remove(Color::White);
+    c.remove(MtgColor::White);
+    c.remove(MtgColor::White);
 
     assert_eq!("GU", c.symbols());
-    assert_eq!(false, c.is_color(Color::White));
-    assert_eq!(true, c.is_color(Color::Blue));
-    assert_eq!(false, c.is_color_mono(Color::Blue));
+    assert_eq!(false, c.is_color(MtgColor::White));
+    assert_eq!(true, c.is_color(MtgColor::Blue));
+    assert_eq!(false, c.is_color_mono(MtgColor::Blue));
     assert_eq!(2, c.num_colors());
     assert_eq!(true, c.is_multicolor());
     assert_eq!(false, c.is_monocolor());
     assert_eq!(false, c.is_colorless());
 
-    c.remove(Color::Green);
+    c.remove(MtgColor::Green);
 
     assert_eq!("U", c.symbols());
-    assert_eq!(false, c.is_color(Color::White));
-    assert_eq!(true, c.is_color(Color::Blue));
-    assert_eq!(true, c.is_color_mono(Color::Blue));
+    assert_eq!(false, c.is_color(MtgColor::White));
+    assert_eq!(true, c.is_color(MtgColor::Blue));
+    assert_eq!(true, c.is_color_mono(MtgColor::Blue));
     assert_eq!(1, c.num_colors());
     assert_eq!(false, c.is_multicolor());
     assert_eq!(true, c.is_monocolor());
