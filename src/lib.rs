@@ -189,7 +189,7 @@ impl TryFrom<&str> for ColorSet {
 
 #[test]
 fn test_changes() {
-    let mut c = ColorSet::from_symbols("WG");
+    let mut c = ColorSet::try_from("WG").unwrap();
 
     assert_eq!("GW", c.symbols());
     assert_eq!(true, c.is_color(Color::White));
