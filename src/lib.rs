@@ -1,11 +1,13 @@
 #![no_std]
 
+#[repr(u8)]
+#[derive(Clone)]
 pub enum Color {
-    White,
-    Blue,
-    Black,
-    Red,
-    Green,
+    White = 1,
+    Blue = 2,
+    Black = 4,
+    Red = 8,
+    Green = 16,
 }
 
 pub struct ColorSet {
@@ -16,60 +18,27 @@ impl ColorSet {
     /// Construct a Colors struct from a string, ignoring symbols other than WUBRG
     /// Using TryFrom<&str> is now preferred as it returns Result when given invalid characters.
     pub fn from_symbols(s: &str) -> ColorSet {
-        let mut c = ColorSet { bits: 0 };
-        for ch in s.chars() {
-            match ch {
-                'W' => c.add(Color::White),
-                'U' => c.add(Color::Blue),
-                'B' => c.add(Color::Black),
-                'R' => c.add(Color::Red),
-                'G' => c.add(Color::Green),
-                _ => (),
-            }
-        }
-        c
+        return s.chars().collect();
     }
 
     /// Add a color
     pub fn add(&mut self, color: Color) {
-        match color {
-            Color::White => self.bits |= 1,
-            Color::Blue => self.bits |= 2,
-            Color::Black => self.bits |= 4,
-            Color::Red => self.bits |= 8,
-            Color::Green => self.bits |= 16,
-        }
+        self.bits |= color as u8;
     }
 
     /// Remove a color
     pub fn remove(&mut self, color: Color) {
-        match color {
-            Color::White => self.bits &= !1,
-            Color::Blue => self.bits &= !2,
-            Color::Black => self.bits &= !4,
-            Color::Red => self.bits &= !8,
-            Color::Green => self.bits &= !16,
-        }
+        self.bits &= !(color as u8);
     }
 
     /// Check if a color is included
     pub fn is_color(&self, color: Color) -> bool {
-        match color {
-            Color::White => self.bits & 1 == 1,
-            Color::Blue => self.bits & 2 == 2,
-            Color::Black => self.bits & 4 == 4,
-            Color::Red => self.bits & 8 == 8,
-            Color::Green => self.bits & 16 == 16,
-        }
+        self.bits & (color.clone() as u8) == (color as u8)
     }
 
     /// Check if the ColorSet is a specific monocolor
     pub fn is_color_mono(&self, color: Color) -> bool {
-        if self.is_monocolor() {
-            self.is_color(color)
-        } else {
-            false
-        }
+        self.is_monocolor() && self.is_color(color)
     }
 
     /// Do all the colors in this ColorSet appear in another ColorSet
@@ -152,6 +121,28 @@ impl ColorSet {
     }
 }
 
+impl FromIterator<char> for ColorSet {
+    fn from_iter<T: IntoIterator<Item=char>>(iter: T) -> Self {
+        let mut c = Self { bits: 0 };
+        for i in iter {
+            if let Ok(color) = i.try_into() {
+                 c.add(color);
+            }
+        }
+        c
+    }
+}
+
+impl FromIterator<Color> for ColorSet {
+    fn from_iter<T: IntoIterator<Item=Color>>(iter: T) -> Self {
+        let mut c = Self { bits: 0 };
+        for i in iter {
+            c.add(i);
+        }
+        c
+    }
+}
+
 impl TryFrom<u8> for ColorSet {
     type Error = &'static str;
 
@@ -168,24 +159,25 @@ impl TryFrom<u8> for ColorSet {
 
 impl TryFrom<&str> for ColorSet {
     type Error = &'static str;
-
     fn try_from(value: &str) -> Result<Self, Self::Error> {
-        let mut c = ColorSet { bits: 0 };
-        for ch in value.chars() {
-            match ch {
-                'W' => c.add(Color::White),
-                'U' => c.add(Color::Blue),
-                'B' => c.add(Color::Black),
-                'R' => c.add(Color::Red),
-                'G' => c.add(Color::Green),
-                _ => return Err("invalid ColorSet symbol"),
-            }
-        }
-        Ok(c)
+        value.chars().map(Color::try_from).collect()
     }
 }
 
+impl TryFrom<char> for Color {
+    type Error = &'static str;
 
+    fn try_from(value: char) -> Result<Self, Self::Error> {
+        match value {
+            'W' => Ok(Color::White),
+            'U' => Ok(Color::Blue),
+            'B' => Ok(Color::Black),
+            'R' => Ok(Color::Red),
+            'G' => Ok(Color::Green),
+            _ => Err("invalid ColorSet symbol")
+        }
+    }
+}
 
 #[test]
 fn test_changes() {
