@@ -15,12 +15,6 @@ pub struct ColorSet {
 }
 
 impl ColorSet {
-    /// Construct a Colors struct from a string, ignoring symbols other than WUBRG
-    /// Using TryFrom<&str> is now preferred as it returns Result when given invalid characters.
-    pub fn from_symbols(s: &str) -> ColorSet {
-        return s.chars().collect();
-    }
-
     /// Add a color
     pub fn add(&mut self, color: MtgColor) {
         self.bits |= color as u8;
