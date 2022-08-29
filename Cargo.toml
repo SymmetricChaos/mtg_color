@@ -1,6 +1,6 @@
 [package]
 name = "mtg_color"
-version = "1.0.1"
+version = "1.0.2"
 edition = "2021"
 authors = ["SymmetricChaos <ajfraebel@gmail.com>"]
 description = "Storage optimized color information for Magic the Gathering"

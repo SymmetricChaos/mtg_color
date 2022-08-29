@@ -1,7 +1,7 @@
 #![no_std]
 
 #[repr(u8)]
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub enum MtgColor {
     White = 1,
     Blue = 2,
@@ -33,7 +33,7 @@ impl ColorSet {
 
     /// Check if a color is included
     pub fn is_color(&self, color: MtgColor) -> bool {
-        self.bits & (color.clone() as u8) == (color as u8)
+        self.bits & (color as u8) == (color as u8)
     }
 
     /// Check if the ColorSet is a specific monocolor
@@ -46,7 +46,7 @@ impl ColorSet {
         let other_sym = other.symbols();
         for ch in self.symbols().chars() {
             if !other_sym.contains(ch) {
-                return false
+                return false;
             }
         }
         true
@@ -122,11 +122,11 @@ impl ColorSet {
 }
 
 impl FromIterator<char> for ColorSet {
-    fn from_iter<T: IntoIterator<Item=char>>(iter: T) -> Self {
+    fn from_iter<T: IntoIterator<Item = char>>(iter: T) -> Self {
         let mut c = Self { bits: 0 };
         for i in iter {
             if let Ok(color) = i.try_into() {
-                 c.add(color);
+                c.add(color);
             }
         }
         c
@@ -134,7 +134,7 @@ impl FromIterator<char> for ColorSet {
 }
 
 impl FromIterator<MtgColor> for ColorSet {
-    fn from_iter<T: IntoIterator<Item=MtgColor>>(iter: T) -> Self {
+    fn from_iter<T: IntoIterator<Item = MtgColor>>(iter: T) -> Self {
         let mut c = Self { bits: 0 };
         for i in iter {
             c.add(i);
@@ -148,9 +148,7 @@ impl TryFrom<u8> for ColorSet {
 
     fn try_from(value: u8) -> Result<Self, Self::Error> {
         if value < 32 {
-            Ok(ColorSet {
-                bits: value % 32,
-            })
+            Ok(ColorSet { bits: value })
         } else {
             Err("invalid ColorSet bits")
         }
@@ -174,7 +172,7 @@ impl TryFrom<char> for MtgColor {
             'B' => Ok(MtgColor::Black),
             'R' => Ok(MtgColor::Red),
             'G' => Ok(MtgColor::Green),
-            _ => Err("invalid ColorSet symbol")
+            _ => Err("invalid ColorSet symbol"),
         }
     }
 }
@@ -242,4 +240,3 @@ fn test_symbols() {
         assert_eq!(c.symbols(), symbols[color_bits as usize])
     }
 }
-
