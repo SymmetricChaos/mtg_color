@@ -8,15 +8,15 @@ pub enum Color {
     Green,
 }
 
-pub struct Colors {
-    color_bits: u8,
+pub struct ColorSet {
+    bits: u8,
 }
 
-impl Colors {
+impl ColorSet {
     /// Construct a Colors struct from a string, ignoring symbols other than WUBRG
     /// Using TryFrom<&str> is now preferred as it returns Result when given invalid characters.
-    pub fn from_symbols(s: &str) -> Colors {
-        let mut c = Colors { color_bits: 0 };
+    pub fn from_symbols(s: &str) -> ColorSet {
+        let mut c = ColorSet { bits: 0 };
         for ch in s.chars() {
             match ch {
                 'W' => c.add(Color::White),
@@ -33,37 +33,37 @@ impl Colors {
     /// Add a color
     pub fn add(&mut self, color: Color) {
         match color {
-            Color::White => self.color_bits |= 1,
-            Color::Blue => self.color_bits |= 2,
-            Color::Black => self.color_bits |= 4,
-            Color::Red => self.color_bits |= 8,
-            Color::Green => self.color_bits |= 16,
+            Color::White => self.bits |= 1,
+            Color::Blue => self.bits |= 2,
+            Color::Black => self.bits |= 4,
+            Color::Red => self.bits |= 8,
+            Color::Green => self.bits |= 16,
         }
     }
 
     /// Remove a color
     pub fn remove(&mut self, color: Color) {
         match color {
-            Color::White => self.color_bits &= !1,
-            Color::Blue => self.color_bits &= !2,
-            Color::Black => self.color_bits &= !4,
-            Color::Red => self.color_bits &= !8,
-            Color::Green => self.color_bits &= !16,
+            Color::White => self.bits &= !1,
+            Color::Blue => self.bits &= !2,
+            Color::Black => self.bits &= !4,
+            Color::Red => self.bits &= !8,
+            Color::Green => self.bits &= !16,
         }
     }
 
     /// Check if a color is included
     pub fn is_color(&self, color: Color) -> bool {
         match color {
-            Color::White => self.color_bits & 1 == 1,
-            Color::Blue => self.color_bits & 2 == 2,
-            Color::Black => self.color_bits & 4 == 4,
-            Color::Red => self.color_bits & 8 == 8,
-            Color::Green => self.color_bits & 16 == 16,
+            Color::White => self.bits & 1 == 1,
+            Color::Blue => self.bits & 2 == 2,
+            Color::Black => self.bits & 4 == 4,
+            Color::Red => self.bits & 8 == 8,
+            Color::Green => self.bits & 16 == 16,
         }
     }
 
-    /// Check if a this is a specific monocolor
+    /// Check if the ColorSet is a specific monocolor
     pub fn is_color_mono(&self, color: Color) -> bool {
         if self.is_monocolor() {
             self.is_color(color)
@@ -72,38 +72,49 @@ impl Colors {
         }
     }
 
+    /// Do all the colors in this ColorSet appear in another ColorSet
+    pub fn is_subset_of(&self, other: ColorSet) -> bool {
+        let other_sym = other.symbols();
+        for ch in self.symbols().chars() {
+            if !other_sym.contains(ch) {
+                return false
+            }
+        }
+        true
+    }
+
     /// Remove all colors
     pub fn set_colorless(&mut self) {
-        self.color_bits = 0
+        self.bits = 0
     }
 
-    /// Returns true if Colors has no colors
+    /// Returns true if ColorSet has no colors
     pub fn is_colorless(&self) -> bool {
-        self.color_bits == 0
+        self.bits == 0
     }
 
-    /// Returns true if Colors is exactly one color
+    /// Returns true if ColorSet is exactly one color
     pub fn is_monocolor(&self) -> bool {
         self.num_colors() == 1
     }
 
-    /// Returns true if Colors is two or more colors
+    /// Returns true if ColorSet is two or more colors
     pub fn is_multicolor(&self) -> bool {
         self.num_colors() > 1
     }
 
-    /// Determine how many colors are set
+    /// Determine how many colors are in the ColorSet
     pub fn num_colors(&self) -> u32 {
-        self.color_bits.count_ones()
+        self.bits.count_ones()
     }
 
     // Minimal(?) string containing all symbols in canonical order
     const HYPER_PERM: &'static str = "RWBGURWUBRGWUB";
 
-    /// Returns the symbols representing this color combination in canonical order
+    /// Returns the symbols representing this Colors in canonical order
     /// To avoid panic handling only the lower 5 bits of the representation are considered
     pub fn symbols(&self) -> &'static str {
-        match self.color_bits % 32 {
+        match self.bits % 32 {
             0 => &Self::HYPER_PERM[0..0],
             1 => &Self::HYPER_PERM[1..2],
             2 => &Self::HYPER_PERM[4..5],
@@ -136,32 +147,30 @@ impl Colors {
             29 => &Self::HYPER_PERM[8..12],
             30 => &Self::HYPER_PERM[7..11],
             31 => &Self::HYPER_PERM[6..11],
-            _ => unreachable!("there are only 32 color possibilities"),
+            _ => unreachable!("invalid ColorSet bits"),
         }
     }
 }
 
-/// Because the Colors struct is just a byte conversion is trivial.
-impl Into<u8> for Colors {
-    fn into(self) -> u8 {
-        self.color_bits
-    }
-}
+impl TryFrom<u8> for ColorSet {
+    type Error = &'static str;
 
-/// Converts a byte into Colors by ignoring the upper three bits.
-impl From<u8> for Colors {
-    fn from(value: u8) -> Colors {
-        Colors {
-            color_bits: value % 32,
+    fn try_from(value: u8) -> Result<Self, Self::Error> {
+        if value < 32 {
+            Ok(ColorSet {
+                bits: value % 32,
+            })
+        } else {
+            Err("invalid ColorSet bits")
         }
     }
 }
 
-impl TryFrom<&str> for Colors {
+impl TryFrom<&str> for ColorSet {
     type Error = &'static str;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
-        let mut c = Colors { color_bits: 0 };
+        let mut c = ColorSet { bits: 0 };
         for ch in value.chars() {
             match ch {
                 'W' => c.add(Color::White),
@@ -169,7 +178,7 @@ impl TryFrom<&str> for Colors {
                 'B' => c.add(Color::Black),
                 'R' => c.add(Color::Red),
                 'G' => c.add(Color::Green),
-                _ => return Err("invalid symbol found in color &str"),
+                _ => return Err("invalid ColorSet symbol"),
             }
         }
         Ok(c)
@@ -180,7 +189,7 @@ impl TryFrom<&str> for Colors {
 
 #[test]
 fn test_changes() {
-    let mut c = Colors::from_symbols("WG");
+    let mut c = ColorSet::from_symbols("WG");
 
     assert_eq!("GW", c.symbols());
     assert_eq!(true, c.is_color(Color::White));
@@ -236,8 +245,8 @@ fn test_symbols() {
         "WUBR", "G", "GW", "GU", "GWU", "BG", "WBG", "BGU", "GWUB", "RG", "RGW", "GUR", "RGWU",
         "BRG", "BRGW", "UBRG", "WUBRG",
     ];
-    for color_bits in 0..32 {
-        let c = Colors::from(color_bits);
+    for color_bits in 0..32_u8 {
+        let c = ColorSet::try_from(color_bits).unwrap();
         assert_eq!(c.symbols(), symbols[color_bits as usize])
     }
 }
