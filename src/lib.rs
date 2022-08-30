@@ -173,83 +173,102 @@ impl TryFrom<&str> for ColorSet {
     }
 }
 
-#[test]
-fn test_changes() {
-    let mut c = ColorSet::try_from("WG").unwrap();
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-    assert_eq!("GW", c.symbols());
-    assert_eq!(true, c.is_color(MtgColor::White));
-    assert_eq!(false, c.is_color(MtgColor::Blue));
-    assert_eq!(false, c.is_color_mono(MtgColor::Blue));
-    assert_eq!(2, c.num_colors());
-    assert_eq!(true, c.is_multicolor());
-    assert_eq!(false, c.is_monocolor());
-    assert_eq!(false, c.is_colorless());
+    #[test]
+    fn test_changes() {
+        let mut c = ColorSet::try_from("WG").unwrap();
 
-    // Check double assign.
-    c.add(MtgColor::Blue);
-    c.add(MtgColor::Blue);
+        assert_eq!("GW", c.symbols());
+        assert_eq!(true, c.is_color(MtgColor::White));
+        assert_eq!(false, c.is_color(MtgColor::Blue));
+        assert_eq!(false, c.is_color_mono(MtgColor::Blue));
+        assert_eq!(2, c.num_colors());
+        assert_eq!(true, c.is_multicolor());
+        assert_eq!(false, c.is_monocolor());
+        assert_eq!(false, c.is_colorless());
 
-    assert_eq!("GWU", c.symbols());
-    assert_eq!(true, c.is_color(MtgColor::White));
-    assert_eq!(true, c.is_color(MtgColor::Blue));
-    assert_eq!(false, c.is_color_mono(MtgColor::Blue));
-    assert_eq!(3, c.num_colors());
-    assert_eq!(true, c.is_multicolor());
-    assert_eq!(false, c.is_monocolor());
-    assert_eq!(false, c.is_colorless());
+        // Check double assign.
+        c.add(MtgColor::Blue);
+        c.add(MtgColor::Blue);
 
-    // Check double delete.
-    c.remove(MtgColor::White);
-    c.remove(MtgColor::White);
+        assert_eq!("GWU", c.symbols());
+        assert_eq!(true, c.is_color(MtgColor::White));
+        assert_eq!(true, c.is_color(MtgColor::Blue));
+        assert_eq!(false, c.is_color_mono(MtgColor::Blue));
+        assert_eq!(3, c.num_colors());
+        assert_eq!(true, c.is_multicolor());
+        assert_eq!(false, c.is_monocolor());
+        assert_eq!(false, c.is_colorless());
 
-    assert_eq!("GU", c.symbols());
-    assert_eq!(false, c.is_color(MtgColor::White));
-    assert_eq!(true, c.is_color(MtgColor::Blue));
-    assert_eq!(false, c.is_color_mono(MtgColor::Blue));
-    assert_eq!(2, c.num_colors());
-    assert_eq!(true, c.is_multicolor());
-    assert_eq!(false, c.is_monocolor());
-    assert_eq!(false, c.is_colorless());
+        // Check double delete.
+        c.remove(MtgColor::White);
+        c.remove(MtgColor::White);
 
-    c.remove(MtgColor::Green);
+        assert_eq!("GU", c.symbols());
+        assert_eq!(false, c.is_color(MtgColor::White));
+        assert_eq!(true, c.is_color(MtgColor::Blue));
+        assert_eq!(false, c.is_color_mono(MtgColor::Blue));
+        assert_eq!(2, c.num_colors());
+        assert_eq!(true, c.is_multicolor());
+        assert_eq!(false, c.is_monocolor());
+        assert_eq!(false, c.is_colorless());
 
-    assert_eq!("U", c.symbols());
-    assert_eq!(false, c.is_color(MtgColor::White));
-    assert_eq!(true, c.is_color(MtgColor::Blue));
-    assert_eq!(true, c.is_color_mono(MtgColor::Blue));
-    assert_eq!(1, c.num_colors());
-    assert_eq!(false, c.is_multicolor());
-    assert_eq!(true, c.is_monocolor());
-    assert_eq!(false, c.is_colorless());
-}
+        c.remove(MtgColor::Green);
 
-#[test]
-fn test_symbols() {
-    let symbols = [
-        "", "W", "U", "WU", "B", "WB", "UB", "WUB", "R", "RW", "UR", "URW", "BR", "RWB", "UBR",
-        "WUBR", "G", "GW", "GU", "GWU", "BG", "WBG", "BGU", "GWUB", "RG", "RGW", "GUR", "RGWU",
-        "BRG", "BRGW", "UBRG", "WUBRG",
-    ];
-    for color_bits in 0..32_u8 {
-        let c = ColorSet::try_from(color_bits).unwrap();
-        assert_eq!(c.symbols(), symbols[color_bits as usize])
+        assert_eq!("U", c.symbols());
+        assert_eq!(false, c.is_color(MtgColor::White));
+        assert_eq!(true, c.is_color(MtgColor::Blue));
+        assert_eq!(true, c.is_color_mono(MtgColor::Blue));
+        assert_eq!(1, c.num_colors());
+        assert_eq!(false, c.is_multicolor());
+        assert_eq!(true, c.is_monocolor());
+        assert_eq!(false, c.is_colorless());
     }
-}
 
-#[test]
-fn test_constructors() {
-    let c0 = ColorSet::try_from("BUW").unwrap();
-    let c1 = ColorSet::try_from(7).unwrap();
-    assert_eq!(c0,c1);
-    assert_eq!(c0.symbols(),"WUB");
-}
+    #[test]
+    fn test_symbols() {
+        let symbols = [
+            "", "W", "U", "WU", "B", "WB", "UB", "WUB", "R", "RW", "UR", "URW", "BR", "RWB", "UBR",
+            "WUBR", "G", "GW", "GU", "GWU", "BG", "WBG", "BGU", "GWUB", "RG", "RGW", "GUR", "RGWU",
+            "BRG", "BRGW", "UBRG", "WUBRG",
+        ];
+        for color_bits in 0..32_u8 {
+            let c = ColorSet::try_from(color_bits).unwrap();
+            assert_eq!(c.symbols(), symbols[color_bits as usize])
+        }
+    }
+
+    #[test]
+    fn test_constructors() {
+        let c0 = ColorSet::try_from("BUW").unwrap();
+        let c1 = ColorSet::try_from(7).unwrap();
+        assert_eq!(c0,c1);
+        assert_eq!(c0.symbols(),"WUB");
+    }
 
 
-#[test]
-fn test_constructor_failure() {
-    let c0 = ColorSet::try_from("WURGBJ").is_err();
-    let c1 = ColorSet::try_from(51).is_err();
-    assert!(c0);
-    assert!(c1);
+    #[test]
+    fn test_constructor_failure() {
+        let c0 = ColorSet::try_from("WURGBJ").is_err();
+        let c1 = ColorSet::try_from(51).is_err();
+        assert!(c0);
+        assert!(c1);
+    }
+
+    #[test]
+    fn test_set_colorless() {
+        let mut blue: ColorSet = "B".try_into().unwrap();
+        blue.set_colorless();
+        assert_eq!(blue.symbols(), "");
+        assert_eq!(blue.bits, 0);
+    }
+
+    #[test]
+    fn test_from_iter() {
+        let c: ColorSet = "GRBUW".chars().collect();
+        assert_eq!(c.symbols(), "WUBRG");
+    }
 }
