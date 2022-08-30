@@ -71,7 +71,7 @@ impl ColorSet {
         self.bits.count_ones()
     }
 
-    // Minimal(?) string containing all symbols in canonical order
+    // Minimal string containing all symbols in canonical order
     const HYPER_PERM: &'static str = "RWBGURWUBRGWUB";
 
     /// Returns the symbols representing this Colors in canonical order
