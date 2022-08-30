@@ -10,6 +10,7 @@ pub enum MtgColor {
     Green = 16,
 }
 
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub struct ColorSet {
     bits: u8,
 }
