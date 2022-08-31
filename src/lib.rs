@@ -42,6 +42,11 @@ impl ColorSet {
         self.bits &= !(color as u8);
     }
 
+    /// Remove all colors
+    pub fn set_colorless(&mut self) {
+        self.bits = 0
+    }
+
     /// Check if a color is included
     pub fn is_color(&self, color: MtgColor) -> bool {
         self.bits & (color as u8) == (color as u8)
@@ -61,11 +66,6 @@ impl ColorSet {
             }
         }
         true
-    }
-
-    /// Remove all colors
-    pub fn set_colorless(&mut self) {
-        self.bits = 0
     }
 
     /// Returns true if ColorSet has no colors
