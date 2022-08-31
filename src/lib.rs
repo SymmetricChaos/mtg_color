@@ -1,9 +1,7 @@
 #![no_std]
 
-/// Represents the five colors of Magic. These colors are sufficient for all cards printed in the game.
-/// It is possible to create game objects with the colors Pink and Gold using Unset cards which is not handled here.
 #[repr(u8)]
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum MtgColor {
     White = 1,
     Blue = 2,
@@ -12,7 +10,23 @@ pub enum MtgColor {
     Green = 16,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq)]
+impl TryFrom<char> for MtgColor {
+    type Error = &'static str;
+
+    fn try_from(value: char) -> Result<Self, Self::Error> {
+        match value {
+            'W' => Ok(MtgColor::White),
+            'U' => Ok(MtgColor::Blue),
+            'B' => Ok(MtgColor::Black),
+            'R' => Ok(MtgColor::Red),
+            'G' => Ok(MtgColor::Green),
+            _ => Err("invalid MtgColor symbol"),
+        }
+    }
+}
+
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub struct ColorSet {
     bits: u8,
 }
@@ -77,10 +91,9 @@ impl ColorSet {
     // Minimal string containing all symbols in canonical order
     const HYPER_PERM: &'static str = "RWBGURWUBRGWUB";
 
-    /// Returns the symbols representing this Colors in canonical order
-    /// To avoid panic handling only the lower 5 bits of the representation are considered
+    /// Returns the symbols representing this ColorSet in canonical order
     pub fn symbols(&self) -> &'static str {
-        match self.bits % 32 {
+        match self.bits {
             0 => &Self::HYPER_PERM[0..0],
             1 => &Self::HYPER_PERM[1..2],
             2 => &Self::HYPER_PERM[4..5],
@@ -154,23 +167,9 @@ impl TryFrom<u8> for ColorSet {
 
 impl TryFrom<&str> for ColorSet {
     type Error = &'static str;
+
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         value.chars().map(MtgColor::try_from).collect()
-    }
-}
-
-impl TryFrom<char> for MtgColor {
-    type Error = &'static str;
-
-    fn try_from(value: char) -> Result<Self, Self::Error> {
-        match value {
-            'W' => Ok(MtgColor::White),
-            'U' => Ok(MtgColor::Blue),
-            'B' => Ok(MtgColor::Black),
-            'R' => Ok(MtgColor::Red),
-            'G' => Ok(MtgColor::Green),
-            _ => Err("invalid ColorSet symbol"),
-        }
     }
 }
 
@@ -236,4 +235,21 @@ fn test_symbols() {
         let c = ColorSet::try_from(color_bits).unwrap();
         assert_eq!(c.symbols(), symbols[color_bits as usize])
     }
+}
+
+#[test]
+fn test_constructors() {
+    let c0 = ColorSet::try_from("BUW").unwrap();
+    let c1 = ColorSet::try_from(7).unwrap();
+    assert_eq!(c0,c1);
+    assert_eq!(c0.symbols(),"WUB");
+}
+
+
+#[test]
+fn test_constructor_failure() {
+    let c0 = ColorSet::try_from("WURGBJ").is_err();
+    let c1 = ColorSet::try_from(51).is_err();
+    assert!(c0);
+    assert!(c1);
 }
