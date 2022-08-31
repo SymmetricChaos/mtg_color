@@ -1,5 +1,7 @@
 #![no_std]
 
+/// Represents the five colors of Magic. These colors are sufficient for all cards printed in the game.
+/// It is possible to create game objects with the colors Pink and Gold using Unset cards which is not handled here.
 #[repr(u8)]
 #[derive(Clone, Copy)]
 pub enum MtgColor {
