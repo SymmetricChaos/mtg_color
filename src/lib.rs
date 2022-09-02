@@ -88,44 +88,45 @@ impl ColorSet {
         self.bits.count_ones()
     }
 
-    // Minimal string containing all symbols in canonical order
-    const HYPER_PERM: &'static str = "RWBGURWUBRGWUB";
+    // Minimal super-string containing all symbols in canonical order
+    const SUPERSTRING: &'static str = "RWBGURWUBRGWUB";
 
     /// Returns the symbols representing this ColorSet in canonical order
+    /// Only the lower 5 bits are considered in order to avoid panic handling.
     pub fn symbols(&self) -> &'static str {
-        match self.bits {
-            0 => &Self::HYPER_PERM[0..0],
-            1 => &Self::HYPER_PERM[1..2],
-            2 => &Self::HYPER_PERM[4..5],
-            3 => &Self::HYPER_PERM[6..8],
-            4 => &Self::HYPER_PERM[2..3],
-            5 => &Self::HYPER_PERM[1..3],
-            6 => &Self::HYPER_PERM[12..14],
-            7 => &Self::HYPER_PERM[6..9],
-            8 => &Self::HYPER_PERM[0..1],
-            9 => &Self::HYPER_PERM[0..2],
-            10 => &Self::HYPER_PERM[4..6],
-            11 => &Self::HYPER_PERM[4..7],
-            12 => &Self::HYPER_PERM[8..10],
-            13 => &Self::HYPER_PERM[0..3],
-            14 => &Self::HYPER_PERM[7..10],
-            15 => &Self::HYPER_PERM[6..10],
-            16 => &Self::HYPER_PERM[3..4],
-            17 => &Self::HYPER_PERM[10..12],
-            18 => &Self::HYPER_PERM[3..5],
-            19 => &Self::HYPER_PERM[10..13],
-            20 => &Self::HYPER_PERM[2..4],
-            21 => &Self::HYPER_PERM[1..4],
-            22 => &Self::HYPER_PERM[2..5],
-            23 => &Self::HYPER_PERM[10..14],
-            24 => &Self::HYPER_PERM[9..11],
-            25 => &Self::HYPER_PERM[9..12],
-            26 => &Self::HYPER_PERM[3..6],
-            27 => &Self::HYPER_PERM[9..13],
-            28 => &Self::HYPER_PERM[8..11],
-            29 => &Self::HYPER_PERM[8..12],
-            30 => &Self::HYPER_PERM[7..11],
-            31 => &Self::HYPER_PERM[6..11],
+        match self.bits & 0b11111 {
+            0 => &Self::SUPERSTRING[0..0],
+            1 => &Self::SUPERSTRING[1..2],
+            2 => &Self::SUPERSTRING[4..5],
+            3 => &Self::SUPERSTRING[6..8],
+            4 => &Self::SUPERSTRING[2..3],
+            5 => &Self::SUPERSTRING[1..3],
+            6 => &Self::SUPERSTRING[12..14],
+            7 => &Self::SUPERSTRING[6..9],
+            8 => &Self::SUPERSTRING[0..1],
+            9 => &Self::SUPERSTRING[0..2],
+            10 => &Self::SUPERSTRING[4..6],
+            11 => &Self::SUPERSTRING[4..7],
+            12 => &Self::SUPERSTRING[8..10],
+            13 => &Self::SUPERSTRING[0..3],
+            14 => &Self::SUPERSTRING[7..10],
+            15 => &Self::SUPERSTRING[6..10],
+            16 => &Self::SUPERSTRING[3..4],
+            17 => &Self::SUPERSTRING[10..12],
+            18 => &Self::SUPERSTRING[3..5],
+            19 => &Self::SUPERSTRING[10..13],
+            20 => &Self::SUPERSTRING[2..4],
+            21 => &Self::SUPERSTRING[1..4],
+            22 => &Self::SUPERSTRING[2..5],
+            23 => &Self::SUPERSTRING[10..14],
+            24 => &Self::SUPERSTRING[9..11],
+            25 => &Self::SUPERSTRING[9..12],
+            26 => &Self::SUPERSTRING[3..6],
+            27 => &Self::SUPERSTRING[9..13],
+            28 => &Self::SUPERSTRING[8..11],
+            29 => &Self::SUPERSTRING[8..12],
+            30 => &Self::SUPERSTRING[7..11],
+            31 => &Self::SUPERSTRING[6..11],
             _ => unreachable!("invalid ColorSet bits"),
         }
     }
